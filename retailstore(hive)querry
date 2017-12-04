@@ -1,0 +1,61 @@
+table:(retailstore)
+-------------------
+-> create table retail (ret_date STRING,cust_id STRING,age STRING,area STRING,pro_cat STRING,por_id STRING,quantity INT,total_cost BIGINT,total_sales BIGINT)
+-> row format delimited
+-> fields terminated by '\;'
+-> stored as textfile;
+
+table2:(retailstore1)
+---------------------
+-> create table retail1 (ret_date STRING,cust_id STRING,age STRING,area STRING,pro_cat STRING,por_id STRING,quantity INT,total_cost BIGINT,total_sales BIGINT)
+-> row format delimited
+-> fields terminated by '\;'
+-> stored as textfile;
+
+loading data to (retail):
+-------------------------
+LOAD DATA LOCAL INPATH '/home/hduser/Downloads/D01' OVERWRITE INTO TABLE retail;
+LOAD DATA LOCAL INPATH '/home/hduser/Downloads/D02' INTO TABLE retail;
+LOAD DATA LOCAL INPATH '/home/hduser/Downloads/D11' INTO TABLE retail;
+LOAD DATA LOCAL INPATH '/home/hduser/Downloads/D12' INTO TABLE retail;
+
+moving contents from on etable to the other
+-------------------------------------------
+
+insert overwrite table retail1 select * from retail where total_sales>0 and total_cost>0;
+
+
+querry:
+-------
+a1)  a)select cust_id,max(total_sales) as max from retail1 where month(ret_date)=1 group by cust_id order by max desc limit 1;
+     b)select cust_id,max(total_sales) as max from retail1 where month(ret_date)=2 group by cust_id order by max desc limit 1;
+     c)select cust_id,max(total_sales) as max from retail1 where month(ret_date)=11 group by cust_id order by max desc limit 1;
+     d)select cust_id,max(total_sales) as max from retail1 where month(ret_date)=12 group by cust_id order by max desc limit 1;
+     e)select cust_id,max(total_sales) as max from retail1 group by cust_id order by max desc limit 1;
+
+a2) a)select por_id,sum(total_sales-total_cost) as sum from retail1 group by por_id order by sum desc limit 1
+    b)select pro_cat,sum(total_sales-total_cost) as sum from retail1 group by pro_cat order by sum desc limit 1;
+
+a3) a)select por_id,sum((total_sales-total_cos)t/(total_cost)*100) as sum from retail1 group by por_id order by sum desc limit 1;
+    b)select por_id,sum((total_sales-total_cos)t/(total_cost)*100) as sum from retail1 group by por_id order by sum desc limit 1; 
+
+
+b) a)select por_id,max(total_sales) as max from retail1 where month(ret_date)=1 group by por_id order by max desc limit 4;
+   b)select por_id,max(total_sales) as max from retail1 where month(ret_date)=2 group by por_id order by max desc limit 4;
+   c)select por_id,max(total_sales) as max from retail1 where month(ret_date)=11 group by por_id order by max desc limit 4;
+   d)select por_id,max(total_sales) as max from retail1 where month(ret_date)=12 group by por_id order by max desc limit 4;
+   e)select por_id,max(total_sales) as max from retail1 group by por_id order by max desc limit 4; 
+ 
+c1) a)select por_id,sum(total_sales-total_cost) as viable from retail1 where age='A ' group by por_id order by viable desc limit 5;
+    b)select por_id,sum(total_sales-total_cost) as viable from retail1 where age='B ' group by por_id order by viable desc limit desc 5;
+    c)select por_id,sum(total_sales-total_cost) as viable from retail1 where age='c ' group by por_id order by viable desc limit desc 5; 
+
+c2) a)select por_id,sum(total_cost-total_sales) as loss from retail1 where age='A' group by por_id order by loss desc  limit 5;
+    b)select por_id,sum(total_cost-total_sales) as loss from retail1 where age='B' group by por_id order by loss desc limit 5;
+    c)select por_id,sum(total_cost-total_sales) as loss from retail1 where age='C' group by por_id order by loss desc limit 5; 
+
+
+
+
+
+
